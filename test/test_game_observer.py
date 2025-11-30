@@ -2,7 +2,7 @@ import pytest
 
 from terra_futura.game_observer import GameObserver
 from terra_futura.interfaces import TerraFuturaObserverInterface
-
+from typing import List
 
 
 class DummyObserver(TerraFuturaObserverInterface):
@@ -10,14 +10,14 @@ class DummyObserver(TerraFuturaObserverInterface):
     Simple test double that collects all states passed to notify().
     """
 
-    def __init__(self):
-        self.received_states = []
+    def __init__(self) -> None:
+        self.received_states: List[str] = []
 
     def notify(self, game_state: str) -> None:
         self.received_states.append(game_state)
 
 
-def test_single_observer_receives_notifications():
+def test_single_observer_receives_notifications() -> None:
     dispatcher = GameObserver()
     observer = DummyObserver()
 
@@ -27,7 +27,7 @@ def test_single_observer_receives_notifications():
     assert observer.received_states == ["STATE_A"]
 
 
-def test_multiple_observers_receive_broadcast():
+def test_multiple_observers_receive_broadcast() -> None:
     dispatcher = GameObserver()
     obs1 = DummyObserver()
     obs2 = DummyObserver()
@@ -41,7 +41,7 @@ def test_multiple_observers_receive_broadcast():
     assert obs2.received_states == ["TURN_START"]
 
 
-def test_unregister_observer_stops_notifications():
+def test_unregister_observer_stops_notifications() -> None:
     dispatcher = GameObserver()
     obs1 = DummyObserver()
     obs2 = DummyObserver()
@@ -61,7 +61,7 @@ def test_unregister_observer_stops_notifications():
     assert obs2.received_states == ["BEFORE_REMOVE", "AFTER_REMOVE"]
 
 
-def test_notify_with_no_observers_does_not_fail():
+def test_notify_with_no_observers_does_not_fail() -> None:
     dispatcher = GameObserver()
 
     # Should not raise

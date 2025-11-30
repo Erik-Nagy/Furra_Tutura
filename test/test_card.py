@@ -8,15 +8,12 @@ import pytest
 # Adjust these imports to your real module paths
 from terra_futura.card import Card
 from terra_futura.interfaces import Effect
-
+from terra_futura.simple_types import Resource
 
 # ---------------------------------------------------------------------------
 # Dummy resource + dummy effects for testing
 # ---------------------------------------------------------------------------
 
-@dataclass(frozen=True)
-class DummyResource:
-    name: str
 
 
 class AlwaysTrueEffect(Effect):
@@ -27,7 +24,7 @@ class AlwaysTrueEffect(Effect):
         self._label = label
         self.calls: int = 0  # track how many times check() is called
 
-    def check(self, input: List[DummyResource], output: List[DummyResource], pollution: int) -> bool:
+    def check(self, input: List[Resource], output: List[Resource], pollution: int) -> bool:
         self.calls += 1
         return True
 
@@ -46,7 +43,7 @@ class AlwaysFalseEffect(Effect):
         self._label = label
         self.calls: int = 0
 
-    def check(self, input: List[DummyResource], output: List[DummyResource], pollution: int) -> bool:
+    def check(self, input: List[Resource], output: List[Resource], pollution: int) -> bool:
         self.calls += 1
         return False
 
@@ -61,13 +58,13 @@ class AlwaysFalseEffect(Effect):
 # Basic card & pollution behavior
 # ---------------------------------------------------------------------------
 
-def test_new_card_is_active_and_clean():
+def test_new_card_is_active_and_clean() -> None:
     c = Card(pollutionSpacesL=3)
     assert c.is_active is True
     assert c.pollution == 0
 
 
-def test_placePollution_fills_slots_then_center_and_deactivates():
+def test_placePollution_fills_slots_then_center_and_deactivates() -> None:
     c = Card(pollutionSpacesL=3)
 
     # First cube: goes to slots
@@ -83,7 +80,7 @@ def test_placePollution_fills_slots_then_center_and_deactivates():
     assert c.is_active is False
 
 
-def test_cannot_placePollution_on_inactive_card():
+def test_cannot_placePollution_on_inactive_card() -> None:
     c = Card(pollutionSpacesL=1)
 
     # First cube goes directly to center -> inactive
@@ -93,7 +90,7 @@ def test_cannot_placePollution_on_inactive_card():
     with pytest.raises(ValueError):
         c.placePollution(1)  # cannot place on inactive card
 
-def test_cannot_place_too_much_pollution():
+def test_cannot_place_too_much_pollution() -> None:
     c = Card(pollutionSpacesL=5)
 
     # First cube goes directly to center -> inactive
@@ -106,58 +103,54 @@ def test_cannot_place_too_much_pollution():
 # Resource management
 # ---------------------------------------------------------------------------
 
-def test_get_resources_on_active_card():
+def test_get_resources_on_active_card() -> None:
     c = Card(pollutionSpacesL=1)
-    r1 = DummyResource("wood")
-    r2 = DummyResource("brick")
+    
+    r1 = Resource.GREEN
+    r2 = Resource.RED
 
     assert c.canPutResources([r1, r2]) is True
     c.putResources([r1, r2])
     assert Counter(c.resources) == Counter([r1, r2])
 
 
-def test_get_resources_on_inactive_card_fails():
+def test_get_resources_on_inactive_card_fails() -> None:
     c = Card(pollutionSpacesL=1)
-    c.placePollution(1)  # now inactive
+    c.placePollution(1)  
 
-    r = DummyResource("wood")
+    r = Resource.GREEN
     assert c.canPutResources([r]) is False
     with pytest.raises(ValueError):
         c.putResources([r])
 
 
-def test_can_put_resources_checks_multiset_and_activity():
+def test_can_put_resources_checks_multiset_and_activity() -> None:
     c = Card(pollutionSpacesL=1)
-    r1 = DummyResource("wood")
-    r2 = DummyResource("brick")
+    r1 = Resource.GREEN
+    r2 = Resource.RED
 
-    c.putResources([r1, r1, r2])  # [wood, wood, brick]
+    c.putResources([r1, r1, r2]) 
 
-    # Enough resources – should be OK
     assert c.canGetResources([r1, r2]) is True
-
-    # Not enough wood for 3 wood
     assert c.canGetResources([r1, r1, r1]) is False
 
-    # Make card inactive -> cannot pay anything
     c.placePollution(1)
     assert c.is_active is False
     assert c.canGetResources([r1]) is False
 
 
-def test_put_resources_removes_exact_multiset():
+def test_put_resources_removes_exact_multiset() -> None:
     c = Card(pollutionSpacesL=1)
-    w = DummyResource("wood")
-    b = DummyResource("brick")
-    s = DummyResource("stone")
+    w = Resource.GREEN
+    b = Resource.RED
+    s = Resource.GOODS
 
-    c.putResources([w, w, b, s])  # wood, wood, brick, stone
+    c.putResources([w, w, b, s])
 
-    c.getResources([w, b])  # remove one wood and one brick
+    c.getResources([w, b]) 
 
     assert Counter(c.resources) == Counter([w, s])
 
-    # cannot remove non-existing second brick
     with pytest.raises(ValueError):
         c.getResources([b])
 
@@ -166,9 +159,9 @@ def test_put_resources_removes_exact_multiset():
 # check / checkLower integration with effects
 # ---------------------------------------------------------------------------
 
-def test_check_uses_upper_effect_when_card_is_active_and_preconditions_ok():
-    w = DummyResource("wood")
-    reward = DummyResource("product")
+def test_check_uses_upper_effect_when_card_is_active_and_preconditions_ok() -> None:
+    w = Resource.GREEN
+    reward = Resource.FOOD
 
     eff = AlwaysTrueEffect()
     c = Card(pollutionSpacesL=2, upperEffect=eff)
@@ -183,18 +176,18 @@ def test_check_uses_upper_effect_when_card_is_active_and_preconditions_ok():
     # Pollution was only validated, not placed here (Card.check is just validation)
 
 
-def test_check_returns_false_if_no_upper_effect():
+def test_check_returns_false_if_no_upper_effect() -> None:
     c = Card(pollutionSpacesL=2, upperEffect=None)
-    w = DummyResource("wood")
-    reward = DummyResource("product")
+    w = Resource.GREEN
+    reward = Resource.FOOD
 
     c.putResources([w])
     assert c.check(input=[w], output=[reward], pollution=0) is False
 
 
-def test_check_does_not_call_effect_if_card_inactive():
-    w = DummyResource("wood")
-    reward = DummyResource("product")
+def test_check_does_not_call_effect_if_card_inactive() -> None:
+    w = Resource.GREEN
+    reward = Resource.FOOD
 
     eff = AlwaysTrueEffect()
     c = Card(pollutionSpacesL=1, upperEffect=eff)
@@ -209,9 +202,9 @@ def test_check_does_not_call_effect_if_card_inactive():
     assert eff.calls == 0  # effect not called when preconditions fail
 
 
-def test_check_fails_if_card_cannot_pay_input():
-    w = DummyResource("wood")
-    reward = DummyResource("product")
+def test_check_fails_if_card_cannot_pay_input() -> None:
+    w = Resource.GREEN
+    reward = Resource.FOOD
 
     eff = AlwaysTrueEffect()
     c = Card(pollutionSpacesL=2, upperEffect=eff)
@@ -223,9 +216,9 @@ def test_check_fails_if_card_cannot_pay_input():
     assert eff.calls == 0
 
 
-def test_check_lower_uses_lower_effect_similarly():
-    w = DummyResource("wood")
-    reward = DummyResource("product")
+def test_check_lower_uses_lower_effect_similarly() -> None:
+    w = Resource.GREEN
+    reward = Resource.FOOD
 
     eff_upper = AlwaysFalseEffect(label="upper")
     eff_lower = AlwaysTrueEffect(label="lower")
@@ -244,7 +237,7 @@ def test_check_lower_uses_lower_effect_similarly():
 # hasAssistance and state()
 # ---------------------------------------------------------------------------
 
-def test_has_assistance_true_if_upper_or_lower_has_assistance():
+def test_has_assistance_true_if_upper_or_lower_has_assistance() -> None:
     upper = AlwaysTrueEffect(assistance=True)
     lower = AlwaysFalseEffect(assistance=False)
     c1 = Card(pollutionSpacesL=1, upperEffect=upper, lowerEffect=lower)
@@ -264,9 +257,9 @@ def test_has_assistance_true_if_upper_or_lower_has_assistance():
     assert c3.hasAssistance() is False
 
 
-def test_state_contains_basic_info():
+def test_state_contains_basic_info() -> None:
     c = Card(pollutionSpacesL=3)
-    w = DummyResource("wood")
+    w = Resource.GREEN
 
     c.putResources([w])
     c.placePollution(1)
@@ -282,7 +275,7 @@ def test_state_contains_basic_info():
     s2 = c.state()
     assert "inactive" in s2
 
-def test_has_this_effect():
+def test_has_this_effect() -> None:
     upper = AlwaysTrueEffect(assistance=True)
     c1 = Card(pollutionSpacesL=1, upperEffect=upper)
 

@@ -37,8 +37,8 @@ class SelectReward(InterfaceSelectReward):
         return resource in self.selection
 
     def selectReward(self, resource: Resource) -> None:
-        if self.canSelectReward(resource) and self.card.isActive():
-            self.card.putResources(resource)
+        if self.canSelectReward(resource) and self.card and self.card.isActive():
+            self.card.putResources([resource])
 
     def state(self)-> str:
         if self.player == None:

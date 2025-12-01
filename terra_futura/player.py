@@ -20,3 +20,6 @@ class Player(PlayerInterface):
         
     def getGrid(self) -> Grid:
         return self.grid
+    
+    def getId(self) -> int:
+        return self.id

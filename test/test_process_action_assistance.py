@@ -62,6 +62,9 @@ class DummyPlayer:
 
     def getGrid(self) -> DummyGrid:
         return self._grid
+    
+    def getId(self) -> int:
+        return self.id
 
 
 def test_good_scenario_no_outputs() -> None:

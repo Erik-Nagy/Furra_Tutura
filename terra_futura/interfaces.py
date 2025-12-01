@@ -185,6 +185,9 @@ class PlayerInterface(Protocol):
     def getGrid(self) -> InterfaceGrid:
         ...
 
+    def getId(self) -> int:
+        ...
+
 class ProcessActionAssistanceInterface(Protocol):
     def activateCard(self, card: InterfaceCard, grid: InterfaceGrid, assistingPlayer: PlayerInterface, 
                      assistingCard: InterfaceCard, inputs: List[tuple[Resource, GridPosition]], 
@@ -194,7 +197,7 @@ class ProcessActionAssistanceInterface(Protocol):
 
 
 class InterfaceSelectReward(Protocol):
-    def setReward(self, player: int, card: InterfaceCard, reward: List[Resource]) ->None:
+    def setReward(self, player: PlayerInterface, card: InterfaceCard, reward: List[Resource]) ->None:
         ...
     
     def canSelectReward(self, resource: Resource) -> bool:

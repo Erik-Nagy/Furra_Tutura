@@ -53,6 +53,9 @@ class DummyPlayer:
     def getGrid(self) -> DummyGrid:
         return self._grid
     
+    def getId(self) -> int:
+        return self.id
+    
 
 class TestScoringMethod(unittest.TestCase):
     def setUp(self) -> None:

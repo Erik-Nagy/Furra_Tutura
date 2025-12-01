@@ -199,7 +199,7 @@ class Game(TerraFuturaInterface):
         if self._state != GameState.SelectReward:
             return
         
-        if self._selectReward.player != playerId:
+        if self._selectReward.player != self.players[playerId]:
             return
 
         if not self._selectReward.canSelectReward(resource):

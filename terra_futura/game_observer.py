@@ -8,7 +8,7 @@ class GameObserver:
         self._observers = observers
 
     @property
-    def observers(self):
+    def observers(self) ->Dict[int, TerraFuturaObserverInterface]:
         return self._observers.copy()
         
     def notifyAll(self, newState: Dict[int, str]) -> None:

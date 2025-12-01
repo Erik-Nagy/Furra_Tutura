@@ -7,6 +7,8 @@ class GridPosition:
     _y: int
 
     def __init__(self, x: int, y: int):
+        if x < -2 or x > 2 or y < -2 or y > 2:
+            raise ValueError
         self._x = x
         self._y = y
 

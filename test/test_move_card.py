@@ -61,8 +61,6 @@ class GridFake(InterfaceGrid):
 
 #used
     def canPutCard(self, coordinate: GridPosition)-> bool:
-        if(coordinate.x >2):
-            return False
         return True
 
  #used
@@ -92,8 +90,6 @@ class GridCannotPutCardFake(InterfaceGrid):
 
 #used
     def canPutCard(self, coordinate: GridPosition)-> bool:
-        if(coordinate.x >2):
-            return False
         return True
 
  #used
@@ -167,7 +163,8 @@ class TestMoveCard(unittest.TestCase):
         self.assertEqual(True,  self.move_card.moveCard(self.pile,0,GridPosition(2,1),self.grid))
 
     def test_move_card_wrong_position(self) ->None:
-        self.assertEqual(False,  self.move_card.moveCard(self.pile,0,GridPosition(67,0),self.grid))
+        with self.assertRaises(ValueError):
+            self.move_card.moveCard(self.pile,0,GridPosition(67,0),self.grid)
 
     def test_cannot_get_card_card(self) ->None:
         self.assertEqual(False,  self.move_card.moveCard(self.notGeneratingPile,0,GridPosition(0,0),self.grid))

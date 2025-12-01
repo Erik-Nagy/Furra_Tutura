@@ -59,6 +59,7 @@ class DummyPlayer:
 
     def __init__(self, grid: DummyGrid) -> None:
         self._grid = grid
+        self.id = 0
 
     def getGrid(self) -> DummyGrid:
         return self._grid

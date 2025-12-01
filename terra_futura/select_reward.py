@@ -43,4 +43,4 @@ class SelectReward(InterfaceSelectReward):
     def state(self)-> str:
         if self.player == None:
             return f"Reward has not been set"
-        return f"Player number {self.player.id} is picking from {self.selection}"
+        return f"Player number {self.player.getId()} is picking from {self.selection}"

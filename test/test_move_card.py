@@ -170,5 +170,4 @@ class TestMoveCard(unittest.TestCase):
         self.assertEqual(False,  self.move_card.moveCard(self.notGeneratingPile,0,GridPosition(0,0),self.grid))
 
     def test_grid_cannot_put_card(self) ->None:
-        with self.assertRaises(ValueError):
-            self.move_card.moveCard(self.pile, 0, GridPosition(0,0), self.notPuttingGrid)
+        self.assertEqual(False, self.move_card.moveCard(self.pile, 0, GridPosition(0,0), self.notPuttingGrid))

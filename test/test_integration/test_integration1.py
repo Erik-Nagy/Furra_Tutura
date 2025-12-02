@@ -14,29 +14,30 @@ from terra_futura.simple_types import Deck, GridPosition, Resource, Points, Card
 from terra_futura.arbitrary_basic import ArbitraryBasic
 from terra_futura.transformation_fixed import TransformationFixed
 from terra_futura.effect_or import EffectOr
+from terra_futura.interfaces import TerraFuturaObserverInterface, InterfacePile
+from typing import cast
 
-
-class DummyObserver:
-    def __init__(self):
-        self.notifications = []
+class DummyObserver(TerraFuturaObserverInterface):
+    def __init__(self) -> None:
+        self.notifications: list[str] = []
 
     def notify(self, game_state: str) -> None:
         # store for potential debugging
         self.notifications.append(game_state)
 
 
-def make_simple_card():
+def make_simple_card() -> Card:
     # Card that requires no input and produces one GOODS resource
     eff = ArbitraryBasic(from_=0, to=[Resource.GOODS], pollution=0)
     return Card(pollutionSpacesL=1, upperEffect=eff)
 
 
-def make_pile(num_cards: int = 12):
+def make_pile(num_cards: int = 12) -> Pile:
     cards = [make_simple_card() for _ in range(num_cards)]
     return Pile(cards)
 
 
-def make_player(player_id: int):
+def make_player(player_id: int) -> Player:
     grid = Grid()
     # Two simple activation patterns (single-center cells)
     ap1 = ActivationPattern(grid, [GridPosition(0, 0)])
@@ -49,12 +50,12 @@ def make_player(player_id: int):
     return Player(id=player_id, activation_patterns=[ap1, ap2], scoring_methods=[sm1, sm2], grid=grid)
 
 
-def test_full_game_simulation():
+def test_full_game_simulation() -> None:
     # Build piles
     pile_i = make_pile(100)
     pile_ii = make_pile(100)
 
-    piles = {Deck.LEVEL_I: pile_i, Deck.LEVEL_II: pile_ii}
+    piles = {Deck.LEVEL_I: cast(InterfacePile, pile_i), Deck.LEVEL_II: cast(InterfacePile, pile_ii)}
 
     # Players
     p1 = make_player(1)

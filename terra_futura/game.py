@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Mapping
 from .player import Player
 from .simple_types import GameState, Deck, CardSource, GridPosition, Resource
 from .interfaces import TerraFuturaInterface, GameObserverInterface, InterfacePile, InterfaceMoveCard, ProcessActionInterface, ProcessActionAssistanceInterface

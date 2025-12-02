@@ -118,7 +118,7 @@ class InterfaceGrid(Protocol):
     def canPutCard(self, coordinate: GridPosition)-> bool:
         ...
 
-    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> bool:
+    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> None:
         ...
 
     def canBeActivated(self, coordinate: GridPosition)-> bool:

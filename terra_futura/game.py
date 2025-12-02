@@ -3,7 +3,6 @@ from .player import Player
 from .simple_types import GameState, Deck, CardSource, GridPosition, Resource
 from .interfaces import TerraFuturaInterface, GameObserverInterface, InterfacePile, InterfaceMoveCard, ProcessActionInterface, ProcessActionAssistanceInterface
 from .select_reward import SelectReward
-from .grid import Grid
 
 class Game(TerraFuturaInterface):
     _state: GameState

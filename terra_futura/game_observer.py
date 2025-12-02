@@ -1,9 +1,9 @@
 from typing import Dict
 from abc import ABC
-from terra_futura.interfaces import TerraFuturaObserverInterface
+from terra_futura.interfaces import TerraFuturaObserverInterface, GameObserverInterface
 from typing import Dict
 
-class GameObserver:
+class GameObserver(GameObserverInterface):
     def __init__(self, observers: Dict[int, TerraFuturaObserverInterface]) -> None:
         self._observers = observers
 

@@ -22,15 +22,19 @@ class RandomShuffler(InterfaceShuffler):
         return deck_copy
 
 class Pile(InterfacePile):
-    def __init__(self, visible_cards: Sequence[InterfaceCard], hidden_cards: Sequence[InterfaceCard], shuffler: Optional['InterfaceShuffler'] = None):
+    def __init__(self, cards: Sequence[InterfaceCard], shuffler: Optional['InterfaceShuffler'] = None):
         if not shuffler:
             shuffler = RandomShuffler()
         self.shuffler = shuffler
-        self.visible_cards: List[InterfaceCard] = list(visible_cards)
-        if len(self.visible_cards) != 4:
-            raise ValueError("Not 4 visible cards")
-        self.hidden_cards: List[InterfaceCard] = list(hidden_cards)
+        self.hidden_cards: List[InterfaceCard] = list(cards)
+        self.visible_cards: List[InterfaceCard] = []
         self.discarded_cards: List[InterfaceCard] = []
+
+        for i in range(4):
+            if self.hidden_cards == []:
+                raise ValueError("Empty pile")
+            topDeck = self.hidden_cards.pop()
+            self.visible_cards.insert(0, topDeck)
           
     def getCard(self, index: int) -> Optional[InterfaceCard]:
         if index < 1 or index > 4:
@@ -43,11 +47,11 @@ class Pile(InterfacePile):
             raise ValueError("Cannot get card at that position")
         
         if self.hidden_cards == []:
+            if self.discarded_cards == []:
+                raise ValueError("No more cards")
             self.hidden_cards = self.shuffler.shuffle(self.discarded_cards)
             self.discarded_cards.clear()
 
-            if self.hidden_cards == []:
-                raise ValueError("Empty pile")
         topDeck = self.hidden_cards.pop()
         
         if index == 5:

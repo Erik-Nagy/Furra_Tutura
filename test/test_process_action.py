@@ -17,8 +17,8 @@ class DummyGrid(InterfaceGrid):
     def canPutCard(self, coordinate: GridPosition)-> bool:
         return True
 
-    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> bool:
-        return True
+    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> None:
+        pass
 
     def canBeActivated(self, coordinate: GridPosition)-> bool:
         return True

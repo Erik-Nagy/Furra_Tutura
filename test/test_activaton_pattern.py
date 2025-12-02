@@ -13,8 +13,8 @@ class GridFake(InterfaceGrid):
     def setActivationPattern(self, pattern: List[GridPosition]) -> None:
         self.activations_received = pattern
 
-    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> bool:
-        return False
+    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> None:
+        pass
     
 # Has to return something
     def getCard(self, coordinate: GridPosition) -> Optional[InterfaceCard]:

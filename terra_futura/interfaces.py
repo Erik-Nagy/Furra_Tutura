@@ -1,9 +1,8 @@
 # pylint: disable=unused-argument, duplicate-code
-from typing import List, Tuple, Optional, Protocol
+from typing import List, Tuple, Optional, Protocol, Dict
 from terra_futura.simple_types import *
 
 from abc import ABC, abstractmethod
-from typing import List
 
 # Zostalo z pôvodného...
 class InterfaceActivateGrid(Protocol):
@@ -118,7 +117,7 @@ class InterfaceGrid(Protocol):
     def canPutCard(self, coordinate: GridPosition)-> bool:
         ...
 
-    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> bool:
+    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> None:
         ...
 
     def canBeActivated(self, coordinate: GridPosition)-> bool:
@@ -171,7 +170,7 @@ class TerraFuturaInterface(Protocol):
         ...
 
 class GameObserverInterface(Protocol):
-    def notifyAll(self, newState: dict[int, str]) -> None:
+    def notifyAll(self, newState: Dict[int, str]) -> None:
         ...
 
 class ProcessActionInterface(Protocol):

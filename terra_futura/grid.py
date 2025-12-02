@@ -82,14 +82,14 @@ class Grid (InterfaceGrid):
                 if self.getCard(GridPosition(x,y)) != None:
                     positions_strs.append(f"({x},{y})")
 
-        pattern_sorted = sorted(self._activationPattern, key=lambda p: (p.x, p.y))
+        pattern_sorted = sorted(self.activationPattern, key=lambda p: (p.x, p.y))
         pattern_strs = [f"({p.x},{p.y})" for p in pattern_sorted]
 
-        activated_sorted = sorted(self._activatedThisTurn, key=lambda p: (p.x, p.y))
+        activated_sorted = sorted(self.shouldBeActivated, key=lambda p: (p.x, p.y))
         activated_strs = [f"({p.x},{p.y})" for p in activated_sorted]
         
         return (
             "Used positions: " + ", ".join(positions_strs)
             + "\nActivation pattern: " + ", ".join(pattern_strs)
-            + "\nActivated this turn: " + ", ".join(activated_strs)
+            + "\nShould still be activated this turn: " + ", ".join(activated_strs)
         )

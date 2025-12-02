@@ -12,7 +12,7 @@ class MoveCard(InterfaceMoveCard):
         # implementacia 
 
         if not grid.canPutCard(gridCoordinate):
-            return False
+            raise ValueError("Wrong coordinates")
 
         # Get the card from grid
         card = pile.getCard(cardIndex)
@@ -25,8 +25,6 @@ class MoveCard(InterfaceMoveCard):
         pile.takeCard(cardIndex)
 
 
-        result = grid.putCard(gridCoordinate, card)
-
-        assert result == True
+        grid.putCard(gridCoordinate, card)
 
         return True

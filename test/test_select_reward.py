@@ -22,11 +22,11 @@ class DummyGrid (InterfaceGrid):
             return True
         return False
 
-    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> bool:
+    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> None:
         if self.canPutCard(coordinate):
             self.grid[coordinate] = card
-            return True
-        return False
+        else:
+            raise ValueError("There already was a card there")
 
     def canBeActivated(self, coordinate: GridPosition)-> bool:
         return True
@@ -122,15 +122,12 @@ class TestScoringMethod(unittest.TestCase):
         card3 = Card(pollutionSpacesL=1, upperEffect= TransformationFixed([Resource.RED, Resource.GREEN], [Resource.GOODS, Resource.YELLOW], 0), lowerEffect = TransformationFixed([Resource.RED, Resource.YELLOW], [Resource.GOODS, Resource.YELLOW], 0))
         player.getGrid().putCard(GridPosition(0,0), card1)
 
-        self.assertEqual(False, player.getGrid().putCard(GridPosition(0,0), card2))
+        with self.assertRaises(ValueError):
+            player.getGrid().putCard(GridPosition(0,0), card2)
         self.assertEqual(card1, player.getGrid().getCard(GridPosition(0,0)))
-
-        player.getGrid().putCard(GridPosition(1,0), card2)
-        player.getGrid().putCard(GridPosition(2,0), card3)
 
         selection = self.selectReward()
         selection.setReward(player, card1, [Resource.RED, Resource.GREEN])
-        selection.selectReward(Resource.RED)
         self.assertEqual(True, card1.canGetResources([Resource.RED]))
         self.assertEqual(False, card2.canGetResources([Resource.RED]))
         self.assertEqual(False, card3.canGetResources([Resource.RED]))

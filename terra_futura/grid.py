@@ -4,19 +4,50 @@ from terra_futura.simple_types import *
 
 class Grid (InterfaceGrid):
     def __init__(self) ->None:
-        pass
+        self.grid: dict[GridPosition, InterfaceCard] = {}
+        self.shouldBeActivated: set[GridPosition] = set()
+        self.minY = self.maxY = self.minX = self.maxX = 0
     
     def getCard(self, coordinate: GridPosition)-> Optional[InterfaceCard]:
-        ...
+        return self.grid.get(coordinate, None)
 
     def canPutCard(self, coordinate: GridPosition)-> bool:
-        return False
+        if self.getCard(coordinate) != None:
+            return False
+        
+        if max(self.maxX, coordinate.x) - min(self.minX, coordinate.x) >= 3:
+            return False
+        
+        if max(self.maxY, coordinate.y) - min(self.minY, coordinate.y) >= 3:
+            return False
+        
+        return True
 
-    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> bool:
-        return False
+    def putCard(self, coordinate: GridPosition, card: InterfaceCard) -> None:
+        if list(self.grid.keys()) == [] and (coordinate.x != 0 or coordinate.y != 0):
+            raise ValueError("First card must be placed on Grid position (0,0)")
+
+        if self.canPutCard(coordinate):
+            self.grid[coordinate] = card
+            self.shouldBeActivated.clear()
+            for i in range(-2, 3):
+                card1 = self.getCard(GridPosition(coordinate.x, i))
+                if card1:
+                    self.shouldBeActivated.add(GridPosition(coordinate.x, i))
+
+                card2 = self.getCard(GridPosition(i, coordinate.y))
+                if card2:
+                    self.shouldBeActivated.add(GridPosition(i, coordinate.y))
+
+            self.minX = min(self.minX, coordinate.x)
+            self.maxX = max(self.maxX, coordinate.x)
+            self.minY = min(self.minY, coordinate.y)
+            self.maxY = max(self.maxY, coordinate.y)
+        else:
+            raise ValueError("Cant put a card there")
 
     def canBeActivated(self, coordinate: GridPosition)-> bool:
-        return False
+        return coordinate in self.shouldBeActivated
         
     def setActivated(self, coordinate: GridPosition) -> None:
         ...

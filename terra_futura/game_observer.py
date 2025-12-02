@@ -3,6 +3,9 @@ from abc import ABC
 from terra_futura.interfaces import TerraFuturaObserverInterface
 from typing import Dict
 
+# Re-export the interface for consumers that import from this module.
+__all__ = ["TerraFuturaObserverInterface", "GameObserver"]
+
 class GameObserver:
     def __init__(self, observers: Dict[int, TerraFuturaObserverInterface]) -> None:
         self._observers = observers

@@ -63,6 +63,9 @@ class DummyPlayer:
     def getGrid(self) -> DummyGrid:
         return self._grid
 
+    def getId(self) -> int:
+        return 0
+
 
 def test_good_scenario_no_outputs() -> None:
     logic = ProcessActionAssistance()

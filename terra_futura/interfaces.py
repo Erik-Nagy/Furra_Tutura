@@ -190,6 +190,9 @@ class ProcessActionInterface(Protocol):
 class PlayerInterface(Protocol):
     def getGrid(self) -> InterfaceGrid:
         ...
+        
+    def getId(self) -> int:
+        ...
 
 class ProcessActionAssistanceInterface(Protocol):
     def activateCard(self, card: InterfaceCard, grid: InterfaceGrid, assistingPlayer: PlayerInterface, 
@@ -201,10 +204,10 @@ class ProcessActionAssistanceInterface(Protocol):
 
 class InterfaceSelectReward(Protocol):
     @property
-    def player(self) -> int:
+    def player(self) -> "PlayerInterface | None":
         ...
     
-    def setReward(self, player: int, card: InterfaceCard, reward: List[Resource]) ->None:
+    def setReward(self, player: "PlayerInterface", card: InterfaceCard, reward: List[Resource]) ->None:
         ...
     
     def canSelectReward(self, resource: Resource) -> bool:

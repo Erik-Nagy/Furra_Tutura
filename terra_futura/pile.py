@@ -1,9 +1,13 @@
 from terra_futura.interfaces import InterfacePile, InterfaceCard
 from typing import Optional, List
 import random
+import time
 
 class Pile(InterfacePile):
-    def __init__(self, cards: List[InterfaceCard]) -> None:
+    def __init__(self, cards: List[InterfaceCard], seed: Optional[int] = None) -> None:
+        if seed is None:
+            seed = int(time.time())
+        self._random = random.Random(seed)
         self._discardedCards: List[InterfaceCard] = cards
         self._hiddenCards: List[InterfaceCard] = []
 
@@ -12,7 +16,7 @@ class Pile(InterfacePile):
         self._hiddenCards = self._hiddenCards[:-4]
 
     def _stockHidenCards(self)-> None:
-        random.shuffle(self._discardedCards)
+        self._random.shuffle(self._discardedCards)
         self._hiddenCards = self._discardedCards
         self._discardedCards = []
 

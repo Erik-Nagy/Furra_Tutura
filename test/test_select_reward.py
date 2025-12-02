@@ -128,6 +128,7 @@ class TestScoringMethod(unittest.TestCase):
 
         selection = self.selectReward()
         selection.setReward(player, card1, [Resource.RED, Resource.GREEN])
+        selection.selectReward(Resource.RED)
         self.assertEqual(True, card1.canGetResources([Resource.RED]))
         self.assertEqual(False, card2.canGetResources([Resource.RED]))
         self.assertEqual(False, card3.canGetResources([Resource.RED]))

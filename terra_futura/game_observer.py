@@ -8,12 +8,10 @@ class GameObserver:
         self._observers = observers
 
     @property
-    def observers(self) ->Dict[int, TerraFuturaObserverInterface]:
+    def observers(self) -> Dict[int, TerraFuturaObserverInterface]:
         return self._observers.copy()
         
     def notifyAll(self, newState: Dict[int, str]) -> None:
         for player_id in newState:
             if player_id in self._observers:
                 self._observers[player_id].notify(newState[player_id])
-    
-

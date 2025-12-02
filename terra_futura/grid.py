@@ -7,12 +7,16 @@ class Grid (InterfaceGrid):
         self.grid: dict[GridPosition, InterfaceCard] = {}
         self.shouldBeActivated: set[GridPosition] = set()
         self.minY = self.maxY = self.minX = self.maxX = 0
+        self.activationPattern: list[GridPosition] = []
     
     def getCard(self, coordinate: GridPosition)-> Optional[InterfaceCard]:
         return self.grid.get(coordinate, None)
 
     def canPutCard(self, coordinate: GridPosition)-> bool:
         if self.getCard(coordinate) != None:
+            return False
+        
+        if self.shouldBeActivated != set():
             return False
         
         if max(self.maxX, coordinate.x) - min(self.minX, coordinate.x) >= 3:
@@ -50,13 +54,33 @@ class Grid (InterfaceGrid):
         return coordinate in self.shouldBeActivated
         
     def setActivated(self, coordinate: GridPosition) -> None:
-        ...
+        if self.canBeActivated(coordinate):
+            self.shouldBeActivated.remove(coordinate)
+        else:
+            raise ValueError("Cannot activate this position")
+
 
     def setActivationPattern(self, pattern: List[GridPosition]) -> None:
-        ...
+        self.activationPattern = pattern.copy()
         
     def endTurn(self) -> None:
-        ...
+        self.shouldBeActivated.clear()
 
     def state(self) -> str:
-        return ""
+        positions_strs: list[str] = []
+        for x in range(-2, 3):
+            for y in range(-2, 3):
+                if self.getCard(GridPosition(x,y)) != None:
+                    positions_strs.append(f"({x},{y})")
+
+        pattern_sorted = sorted(self._activationPattern, key=lambda p: (p.x, p.y))
+        pattern_strs = [f"({p.x},{p.y})" for p in pattern_sorted]
+
+        activated_sorted = sorted(self._activatedThisTurn, key=lambda p: (p.x, p.y))
+        activated_strs = [f"({p.x},{p.y})" for p in activated_sorted]
+        
+        return (
+            "Used positions: " + ", ".join(positions_strs)
+            + "\nActivation pattern: " + ", ".join(pattern_strs)
+            + "\nActivated this turn: " + ", ".join(activated_strs)
+        )

@@ -37,12 +37,23 @@ class Pile(InterfacePile):
             self.visible_cards.insert(0, topDeck)
           
     def getCard(self, index: int) -> Optional[InterfaceCard]:
-        if index < 1 or index > 4:
+        if index < 1 or index > 5:
             return None
         
-        return self.visible_cards[index-1]
+        if self.hidden_cards == []:
+            if self.discarded_cards == []:
+                raise ValueError("No more cards")
+            self.hidden_cards = self.shuffler.shuffle(self.discarded_cards)
+            self.discarded_cards.clear()
+
+        topDeck = self.hidden_cards[-1]
+        if index == 5:
+            return topDeck
+        
+        card = self.visible_cards[index-1]
+        return card
     
-    def takeCard(self, index: int) -> InterfaceCard:
+    def takeCard(self, index: int) -> None:
         if index < 1 or index > 5:
             raise ValueError("Cannot get card at that position")
         
@@ -51,15 +62,13 @@ class Pile(InterfacePile):
                 raise ValueError("No more cards")
             self.hidden_cards = self.shuffler.shuffle(self.discarded_cards)
             self.discarded_cards.clear()
-
-        topDeck = self.hidden_cards.pop()
         
         if index == 5:
-            return topDeck
+            self.hidden_cards.pop()
+            return
         
-        card = self.visible_cards.pop(index-1)
-        self.visible_cards.insert(0, topDeck)
-        return card
+        self.visible_cards.pop(index-1)
+        self.visible_cards.insert(0, self.hidden_cards.pop())
     
     def removeLastCard(self) -> None:
         if self.hidden_cards == []:

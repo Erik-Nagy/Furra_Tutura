@@ -121,9 +121,11 @@ def test_getCard_returns_card_for_valid_index_and_none_out_of_range() -> None:
     assert pile.getCard(3).state() == "c4"
     assert pile.getCard(4).state() == "c5"
 
+    # valid index 5
+    assert pile.getCard(5).state() == "c1" #hidden
+
     # out of range indices
     assert pile.getCard(0) is None
-    assert pile.getCard(5) is None
     assert pile.getCard(6) is None
 
 
@@ -134,7 +136,8 @@ def test_takeCard_removes_selected_visible_and_refills() -> None:
     pile = Pile(cards=cards, shuffler=shuffler)
 
     # Take card at position 2 (c4 in visible: [c3, c4, c5, c6])
-    taken = pile.takeCard(2)
+    taken = pile.getCard(2)
+    pile.takeCard(2)
     
     # Should return c4
     assert taken.state() == "c4"
@@ -157,7 +160,8 @@ def test_takeCard_position_5_returns_top_card_from_hidden() -> None:
     pile = Pile(cards=cards, shuffler=shuffler)
 
     # Position 5 should return top card from hidden (c3)
-    taken = pile.takeCard(5)
+    taken = pile.getCard(5)
+    pile.takeCard(5)
     assert taken.state() == "c3"
     
     # Visible cards should remain unchanged: still [c4, c5, c6, c7]
@@ -339,12 +343,14 @@ def test_multiple_consecutive_operations() -> None:
     assert [c.state() for c in pile.visible_cards] == ["c5", "c6", "c7", "c8"]
     
     # Take card from position 2 (c6)
-    taken1 = pile.takeCard(2)
+    taken1 = pile.getCard(2)
+    pile.takeCard(2)
     assert taken1.state() == "c6"
     # Now: hidden=[c1,c2,c3], visible=[c4,c5,c7,c8]
     
     # Take card from position 5 (top of hidden: c3)
-    taken2 = pile.takeCard(5)
+    taken2 = pile.getCard(5)
+    pile.takeCard(5)
     assert taken2.state() == "c3"
     # Now: hidden=[c1,c2], visible=[c4,c5,c7,c8]
     

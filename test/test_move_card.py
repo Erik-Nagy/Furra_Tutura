@@ -55,6 +55,8 @@ class CardFake(InterfaceCard):
         return ""
 
 class GridFake(InterfaceGrid):
+    def __init__(self) -> None:
+        return None
 #used
     def getCard(self, coordinate: GridPosition)-> Optional[InterfaceCard]:
         return None
@@ -83,6 +85,8 @@ class GridFake(InterfaceGrid):
         return ""
 
 class GridCannotPutCardFake(InterfaceGrid):
+    def __init__(self) -> None:
+        return None
 #used
     def getCard(self, coordinate: GridPosition)-> Optional[InterfaceCard]:
         return None
@@ -113,12 +117,14 @@ class GridCannotPutCardFake(InterfaceGrid):
 
 class PileFake(InterfacePile):
     """Only gives the card information, does not change anything"""
+    def __init__(self, cards: List[InterfaceCard]) -> None:
+        return None
     def getCard(self, index:int) ->Optional[InterfaceCard]:
         card = CardFake()
 
         return card
 
-    """Removes card from grid."""
+    # Removes card from grid.
     def takeCard(self, index: int) -> None:
         ...
 
@@ -129,6 +135,8 @@ class PileFake(InterfacePile):
         return ""
 
 class PileUnableToGiveCardFake(InterfacePile):
+    def __init__(self, cards: List[InterfaceCard]) -> None:
+        return None
     def getCard(self, index:int) ->Optional[InterfaceCard]:
         return None
 
@@ -147,8 +155,8 @@ class TestMoveCard(unittest.TestCase):
         
         self.move_card = MoveCard()
 
-        self.pile = PileFake()
-        self.notGeneratingPile = PileUnableToGiveCardFake()
+        self.pile = PileFake([])
+        self.notGeneratingPile = PileUnableToGiveCardFake([])
 
         self.grid = GridFake()
         self.notPuttingGrid = GridCannotPutCardFake()

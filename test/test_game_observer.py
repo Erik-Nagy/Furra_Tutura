@@ -1,8 +1,5 @@
-<<<<<<< Updated upstream
 # test/test_game_observer.py
 
-=======
->>>>>>> Stashed changes
 from typing import Dict
 from unittest.mock import Mock
 
@@ -86,8 +83,4 @@ def test_observers_property_returns_copy() -> None:
     # Internal mapping must not be affected
     # (accessing _observers is OK in a test)
     assert 2 not in game_observer._observers
-<<<<<<< Updated upstream
     assert game_observer.observers.keys() == {1}
-=======
-    assert game_observer.observers.keys() == {1}
->>>>>>> Stashed changes

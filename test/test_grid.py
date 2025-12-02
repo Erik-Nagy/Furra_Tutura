@@ -27,20 +27,20 @@ def test_put_card() -> None:
     # test width limit
     assert g.canPutCard(GridPosition(2, 0))
     g.putCard(GridPosition(2, 0), Card())
-    assert not g.canPutCard(GridPosition(3, 0))
+    assert not g.canPutCard(GridPosition(-1, 0))
 
     # test height limit
     g2 = Grid()
     g2.putCard(GridPosition(0, 0), Card())
     g2.putCard(GridPosition(0, 2), Card())
-    assert not g2.canPutCard(GridPosition(0, 3))
+    assert not g2.canPutCard(GridPosition(0, -1))
     with pytest.raises(ValueError):
-        g2.putCard(GridPosition(0, 3), Card())
+        g2.putCard(GridPosition(0, -1), Card())
 
 
 def test_activation_pattern_and_can_be_activated_and_set_activated() -> None:
     g = Grid()
-    coord = GridPosition(1, 1)
+    coord = GridPosition(0, 0)
     g.putCard(coord, Card())
 
     # test seted activation pattern from putCard

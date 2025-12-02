@@ -12,6 +12,8 @@ from terra_futura.transformation_fixed import TransformationFixed
 
 
 class GridFake(InterfaceGrid):
+    def __init__(self) -> None:
+        return None
 #used
     def getCard(self, coordinate: GridPosition)-> Optional[InterfaceCard]:
         if coordinate == GridPosition(0,0):

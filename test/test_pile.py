@@ -2,13 +2,15 @@ import random
 
 from terra_futura.pile import Pile
 from terra_futura.card import Card
+from terra_futura.interfaces import InterfaceCard
+from typing import List
 
 
-def _make_cards(n: int):
+def _make_cards(n: int) -> List[InterfaceCard]:
     return [Card() for _ in range(n)]
 
 
-def test_initial_state_counts():
+def test_initial_state_counts() -> None:
     # test initial counts of hidden, visible and discarded cards
     random.seed(0)
     cards = _make_cards(7)
@@ -20,7 +22,7 @@ def test_initial_state_counts():
     assert "- discarded cards: 0" in s
 
 
-def _visible_list(pile: Pile):
+def _visible_list(pile: Pile) -> List[InterfaceCard]:
     # return list of visible cards
     out = []
     for i in range(1, 5):
@@ -31,7 +33,7 @@ def _visible_list(pile: Pile):
     return out
 
 
-def test_takeCard():
+def test_takeCard() -> None:
     # test that taking a card removes it from visible cards
     random.seed(1)
     cards = _make_cards(6)
@@ -48,7 +50,7 @@ def test_takeCard():
     assert len(after) == 4
 
 
-def test_removeLastCard():
+def test_removeLastCard() -> None:
     # test that removing last card works correctly
     random.seed(2)
     cards = _make_cards(6)

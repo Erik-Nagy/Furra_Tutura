@@ -61,7 +61,16 @@ class Grid (InterfaceGrid):
 
 
     def setActivationPattern(self, pattern: List[GridPosition]) -> None:
-        self.activationPattern = pattern.copy()
+        cardCount = 0
+        for x in range(-2, 3):
+            for y in range(-2, 3):
+                if self.getCard(GridPosition(x,y)) != None:
+                    cardCount += 1
+
+        if cardCount == 9:
+            self.activationPattern = [GridPosition(pos.x + self.minX, pos.y + self.minY) for pos in pattern]
+        else:
+            raise ValueError("Not Enough Cards on the grid")
         
     def endTurn(self) -> None:
         self.shouldBeActivated.clear()

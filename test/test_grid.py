@@ -106,3 +106,28 @@ def testWhichCardsShouldActivateMultipleCards() -> None:
     g.putCard(GridPosition(2,0), Card())
 
     assert {GridPosition(2,2), coord, GridPosition(1,0), GridPosition(2,0)} == g.shouldBeActivated
+
+    with pytest.raises(ValueError):
+        g.setActivationPattern([coord, coord, coord, coord])
+
+    g.endTurn()
+
+    g.putCard(GridPosition(0,1), Card())
+
+    g.endTurn()
+
+    g.putCard(GridPosition(2,1), Card())
+
+    g.endTurn()
+
+    g.putCard(GridPosition(0,2), Card())
+
+    g.endTurn()
+
+    g.putCard(GridPosition(1,2), Card())
+
+    assert {GridPosition(2,2), GridPosition(1,1), GridPosition(1,0), GridPosition(0,2), GridPosition(1,2)} == g.shouldBeActivated
+
+    g.setActivationPattern([coord, coord, coord, coord])
+
+    assert [coord, coord, coord, coord] == g.activationPattern

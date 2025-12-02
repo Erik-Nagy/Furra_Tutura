@@ -96,6 +96,9 @@ class InterfaceCard(ABC):
 
 # Pile
 class InterfacePile(Protocol):
+    def __init__(self, cards: List[InterfaceCard]) -> None:
+        ...
+        
     """Only gives the card information, does not change anything"""
     def getCard(self, index:int) ->Optional[InterfaceCard]:
         ...
@@ -112,6 +115,9 @@ class InterfacePile(Protocol):
 
 # Grid
 class InterfaceGrid(Protocol):
+    def __init__(self) -> None:
+        ...
+
     def getCard(self, coordinate: GridPosition)-> Optional[InterfaceCard]:
         ...
 

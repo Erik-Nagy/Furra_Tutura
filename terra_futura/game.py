@@ -1,8 +1,7 @@
 from typing import Optional
 from .player import Player
 from .simple_types import GameState, Deck, CardSource, GridPosition, Resource
-from .interfaces import TerraFuturaInterface, GameObserverInterface, InterfacePile, InterfaceMoveCard, ProcessActionInterface, ProcessActionAssistanceInterface
-from .select_reward import SelectReward
+from .interfaces import TerraFuturaInterface, GameObserverInterface, InterfacePile, InterfaceMoveCard, ProcessActionInterface, ProcessActionAssistanceInterface, InterfaceSelectReward
 from .grid import Grid
 
 class Game(TerraFuturaInterface):
@@ -14,12 +13,12 @@ class Game(TerraFuturaInterface):
     _moveCard: InterfaceMoveCard
     _processAction: ProcessActionInterface
     _processActionAssistance: ProcessActionAssistanceInterface
-    _selectReward: SelectReward
+    _selectReward: InterfaceSelectReward
 
     def __init__(self, players: list[Player], piles: dict[Deck, InterfacePile], 
                  moveCard: InterfaceMoveCard, processAction: ProcessActionInterface, 
                  processActionAssistance: ProcessActionAssistanceInterface, 
-                 selectReward: SelectReward, gameObserver: GameObserverInterface) -> None:
+                 selectReward: InterfaceSelectReward, gameObserver: GameObserverInterface) -> None:
         
         
         if len(players) < 2 or len(players) > 4:

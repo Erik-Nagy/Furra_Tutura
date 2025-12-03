@@ -1,6 +1,5 @@
-# test/test_integration/test_game_basic_flow.py
 """
-Integration Test 1: Basic Game Flow with Pollution & Deactivation
+Integration Test 3: Basic Game Flow with Pollution & Deactivation
 
 Tests fundamental game mechanics including card placement, activation,
 pollution management, and card deactivation through a complete 9-turn game.
@@ -70,7 +69,6 @@ def test_basic_game_flow_with_pollution() -> None:
 
     This test verifies:
     - Card placement and grid constraints
-    - Card activation mechanics
     - Resource production and management
     - Pollution placement on cards with/without pollution spaces
     - Card deactivation when pollution fills all spaces
@@ -153,7 +151,6 @@ def test_basic_game_flow_with_pollution() -> None:
     grid1 = Grid()
     grid2 = Grid()
 
-    # Workaround: Grid.state() expects _activated_this_turn but doesn't initialize it
     player1 = create_test_player(1, grid1)
     player2 = create_test_player(2, grid2)
 
@@ -196,12 +193,11 @@ def test_basic_game_flow_with_pollution() -> None:
     # After takeCard, state should be ActivateCard
     assert len(grid1.grid) == 1  # Starting card + new card
 
-    # Skip activation for simplicity and end turn
     assert game.turnFinished(1)
     assert game.currentPlayerId == 2
     assert game.turnNumber == 1
 
-    # ===== TURN 2: Player 2 =====
+    # ===== TURN 1: Player 2 =====
     success = game.takeCard(
         playerId=2,
         source=CardSource(deck=Deck.LEVEL_I, index=2),
@@ -210,17 +206,16 @@ def test_basic_game_flow_with_pollution() -> None:
     )
     assert success
 
-    # Skip activation and end turn
     assert game.turnFinished(2)
     assert game.turnNumber == 2
     assert game.currentPlayerId == 1
 
-    # ===== TURNS 3-8: Continue building grids =====
+    # ===== TURNS 2-9: Continue building grids =====
     # We'll place cards strategically to test pollution mechanics
 
     # Grid positions to form a 3x3 grid starting from (0,0)
     # Already have: (0,0) starting, (1,0) from turn 1
-    # Need 7 more positions to complete the grid
+    # Need 8 more positions to complete the grid
     positions_player1 = [
         GridPosition(2, 0), GridPosition(0, 1), GridPosition(1, 1), GridPosition(1, 0),
         GridPosition(2, 1), GridPosition(0, 2), GridPosition(1, 2), GridPosition(2, 2)
@@ -231,7 +226,7 @@ def test_basic_game_flow_with_pollution() -> None:
         GridPosition(2, 1), GridPosition(0, 2), GridPosition(1, 2), GridPosition(2, 2)
     ]
 
-    # Turns 3-9 (7 more turns for each player to complete the 3x3 grid)
+    # Turns 2-9 (8 more turns for each player to complete the 3x3 grid)
     for turn_idx in range(8):
         # Player 1's turn
         game.takeCard(
@@ -240,7 +235,7 @@ def test_basic_game_flow_with_pollution() -> None:
             cardIndex=1,
             destination=positions_player1[turn_idx]
         )
-        # Skip activation for simplicity, just end turn
+
         game.turnFinished(1)
 
         # Player 2's turn

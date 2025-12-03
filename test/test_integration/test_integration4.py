@@ -1,9 +1,8 @@
-# test/test_integration/test_game_basic_flow.py
 """
-Integration Test 1: Basic Game Flow with Pollution & Deactivation
+Integration Test 4: Two Turns With Card Activations
 
-Tests fundamental game mechanics including card placement, activation,
-pollution management, and card deactivation through a complete 9-turn game.
+Tests fundamental game mechanics including card placement, especially activation,
+pollution management, and card deactivation with a randomly shuffled deck during 2 turns.
 """
 
 from terra_futura.game import Game
@@ -22,7 +21,7 @@ from terra_futura.simple_types import *
 from terra_futura.arbitrary_basic import ArbitraryBasic
 from terra_futura.transformation_fixed import TransformationFixed
 from terra_futura.interfaces import TerraFuturaObserverInterface, Effect, InterfaceCard, InterfacePile
-from typing import cast
+from typing import cast, Counter
 
 
 class GameStateObserver(TerraFuturaObserverInterface):
@@ -64,32 +63,23 @@ def create_test_player(player_id: int, grid: Grid) -> Player:
     )
 
 
-def test_basic_game_flow_with_pollution() -> None:
+def test_two_turns_with_card_activations() -> None:
     """
-    Full 9-turn game testing basic mechanics, pollution, and card deactivation.
+    A few randomised turns testing basic mechanics, pollution, and activating cards.
 
     This test verifies:
+    - Deck shuffling
     - Card placement and grid constraints
     - Card activation mechanics
     - Resource production and management
     - Pollution placement on cards with/without pollution spaces
     - Card deactivation when pollution fills all spaces
-    - Final activation pattern selection
-    - Scoring calculation with pollution penalties
     """
 
     # ===== SETUP PHASE =====
 
     # Create starting cards for both players
     # Starting cards have simple resource production
-    starting_card_1 = create_test_card(
-        upper_effect=ArbitraryBasic(from_=0, to=[Resource.RED], pollution=0),
-        pollution_spaces=0
-    )
-    starting_card_2 = create_test_card(
-        upper_effect=ArbitraryBasic(from_=0, to=[Resource.GREEN], pollution=0),
-        pollution_spaces=0
-    )
 
     # Create cards for Level I pile (at least 18 cards needed)
     level_i_cards: list[InterfaceCard] = []
@@ -97,8 +87,8 @@ def test_basic_game_flow_with_pollution() -> None:
     # Cards 1-6: Simple resource production, various pollution spaces
     for i in range(6):
         level_i_cards.append(create_test_card(
-            upper_effect=ArbitraryBasic(from_=0, to=[Resource.YELLOW], pollution=0),
-            pollution_spaces=i % 4
+            upper_effect=ArbitraryBasic(from_=0, to=[Resource.YELLOW], pollution=1),
+            pollution_spaces=i%4
         ))
 
     # Cards 7-12: Cards with pollution-generating effects
@@ -106,11 +96,11 @@ def test_basic_game_flow_with_pollution() -> None:
         level_i_cards.append(create_test_card(
             upper_effect=ArbitraryBasic(from_=0, to=[Resource.RED], pollution=0),
             lower_effect=TransformationFixed(
-                from_=[Resource.RED, Resource.RED],
+                from_=[Resource.YELLOW],
                 to=[Resource.GOODS],
-                pollution=1  # Generates pollution
+                pollution=0  # Generates pollution
             ),
-            pollution_spaces=i % 3  # 0, 1, 2, 0, 1, 2
+            pollution_spaces=i%3
         ))
 
     # Cards 13-18: More varied cards
@@ -141,19 +131,20 @@ def test_basic_game_flow_with_pollution() -> None:
     # Create piles with seeded shuffler for determinism
     shuffler = RandomShuffler()
     pile_level_i = Pile(
-        level_i_cards,
+        shuffler.shuffle(level_i_cards),
         shuffler=shuffler
     )
     pile_level_ii = Pile(
-        level_ii_cards,
+        shuffler.shuffle(level_ii_cards),
         shuffler=shuffler
     )
+
+    
 
     # Create grids and players
     grid1 = Grid()
     grid2 = Grid()
 
-    # Workaround: Grid.state() expects _activated_this_turn but doesn't initialize it
     player1 = create_test_player(1, grid1)
     player2 = create_test_player(2, grid2)
 
@@ -193,15 +184,35 @@ def test_basic_game_flow_with_pollution() -> None:
         destination=GridPosition(0, 0)
     )
     assert success
+
+    for pos in grid1.shouldBeActivated:
+        card = grid1.getCard(pos)
+        if card and card.upperEffect:
+            eff = card.upperEffect
+
+            if isinstance(eff, ArbitraryBasic):
+                game.activateCard(playerId=1,
+                card = GridPosition(0, 0),
+                inputs = [(Resource.RED, GridPosition(0,0)) for _ in range(eff.from_)],
+                outputs = [(res, GridPosition(0,0)) for res in eff.to],
+                pollution = [GridPosition(0,0)] if eff.pollution == 1 else [],
+                otherPlayerId = None,
+                otherCard = None)
+                
+
+                if eff.from_ == 0 and card.isActive():
+                    assert card.canGetResources(eff.to)
+                else:
+                    assert not card.canGetResources(eff.to)
+                
     # After takeCard, state should be ActivateCard
     assert len(grid1.grid) == 1  
 
-    # Skip activation for simplicity and end turn
     assert game.turnFinished(1)
     assert game.currentPlayerId == 2
     assert game.turnNumber == 1
 
-    # ===== TURN 2: Player 2 =====
+    # ===== TURN 1: Player 2 =====
     success = game.takeCard(
         playerId=2,
         source=CardSource(deck=Deck.LEVEL_I, index=2),
@@ -210,56 +221,150 @@ def test_basic_game_flow_with_pollution() -> None:
     )
     assert success
 
-    # Skip activation and end turn
+    for pos in grid2.shouldBeActivated:
+        card = grid2.getCard(pos)
+        if card and card.lowerEffect:
+            eff = card.lowerEffect
+        elif card and card.upperEffect:
+            eff = card.upperEffect
+        
+        if card and eff:
+            if isinstance(eff, ArbitraryBasic):
+                game.activateCard(playerId=2,
+                card = GridPosition(0, 0),
+                inputs = [(Resource.RED, GridPosition(0,0)) for _ in range(eff.from_)],
+                outputs = [(res, GridPosition(0,0)) for res in eff.to],
+                pollution = [GridPosition(0,0)] if eff.pollution == 1 else [],
+                otherPlayerId = None,
+                otherCard = None)
+                
+
+                if eff.from_ == 0 and card.isActive():
+                    assert card.canGetResources(eff.to)
+                else:
+                    assert not card.canGetResources(eff.to)
+
+            if isinstance(eff, TransformationFixed):
+                game.activateCard(playerId=2,
+                card = GridPosition(0, 0),
+                inputs = [(res, GridPosition(0,0)) for res in eff.from_],
+                outputs = [(res, GridPosition(0,0)) for res in eff.to],
+                pollution = [GridPosition(0,0)] if eff.pollution == 1 else [],
+                otherPlayerId = None,
+                otherCard = None)
+                
+                assert not card.canGetResources(eff.to)
+
     assert game.turnFinished(2)
     assert game.turnNumber == 2
     assert game.currentPlayerId == 1
 
-    # ===== TURNS 3-8: Continue building grids =====
-    # We'll place cards strategically to test pollution mechanics
+    # ===== TURNS 2: Continue building grids =====
+    # We'll simulate one more round and activate the cards
 
-    # Grid positions to form a 3x3 grid starting from (0,0)
-    # Already have: (0,0) starting, (1,0) from turn 1
-    # Need 7 more positions to complete the grid
-    positions_player1 = [
-        GridPosition(2, 0), GridPosition(0, 1), GridPosition(1, 1), GridPosition(1, 0),
-        GridPosition(2, 1), GridPosition(0, 2), GridPosition(1, 2), GridPosition(2, 2)
-    ]
+    success = game.takeCard(
+        playerId=1,
+        source=CardSource(deck=Deck.LEVEL_I, index=5),
+        cardIndex=5,
+        destination=GridPosition(2, 0)
+    )
+    assert success
 
-    positions_player2 = [
-        GridPosition(2, 0), GridPosition(0, 1), GridPosition(1, 1), GridPosition(1, 0),
-        GridPosition(2, 1), GridPosition(0, 2), GridPosition(1, 2), GridPosition(2, 2)
-    ]
+    for pos in grid1.shouldBeActivated:
+        card = grid1.getCard(pos)
+        if card and card.upperEffect:
+            eff = card.upperEffect
+        
+            if isinstance(eff, ArbitraryBasic):
+                game.activateCard(playerId=1,
+                card = pos,
+                inputs = [(Resource.RED, pos) for _ in range(eff.from_)],
+                outputs = [(res, pos) for res in eff.to],
+                pollution = [pos] if eff.pollution == 1 else [],
+                otherPlayerId = None,
+                otherCard = None)
+                
 
-    # Turns 3-9 (7 more turns for each player to complete the 3x3 grid)
-    for turn_idx in range(8):
-        # Player 1's turn
-        game.takeCard(
-            playerId=1,
-            source=CardSource(deck=Deck.LEVEL_I, index=1),
-            cardIndex=1,
-            destination=positions_player1[turn_idx]
-        )
-        # Skip activation for simplicity, just end turn
-        game.turnFinished(1)
+                if eff.from_ == 0 and card.isActive():
+                    assert card.canGetResources(eff.to)
+                else:
+                    assert not card.canGetResources(eff.to)
+                
+    assert len(grid1.grid) == 2  
 
-        # Player 2's turn
-        game.takeCard(
-            playerId=2,
-            source=CardSource(deck=Deck.LEVEL_II, index=1),
-            cardIndex=1,
-            destination=positions_player2[turn_idx]
-        )
-        game.turnFinished(2)
+    assert game.turnFinished(1)
+    assert game.currentPlayerId == 2
+    assert game.turnNumber == 2
 
-    # After all placements, each player should have 9 cards (including starting card)
-    assert len(grid1.grid) == 9
-    assert len(grid2.grid) == 9
+    # ===== TURN 2: Player 2 =====
+    success = game.takeCard(
+        playerId=2,
+        source=CardSource(deck=Deck.LEVEL_I, index=5),
+        cardIndex=5,
+        destination=GridPosition(0, -2)
+    )
+    assert success
+
+    for pos in grid2.shouldBeActivated:
+        card = grid2.getCard(pos)
+        if card and card.lowerEffect:
+            eff = card.lowerEffect
+        elif card and card.upperEffect:
+            eff = card.upperEffect
+        
+        if card and eff:
+            if isinstance(eff, ArbitraryBasic):
+                game.activateCard(playerId=2,
+                card = pos,
+                inputs = [(Resource.RED, pos) for _ in range(eff.from_)],
+                outputs = [(res, pos) for res in eff.to],
+                pollution = [pos] if eff.pollution == 1 else [],
+                otherPlayerId = None,
+                otherCard = None)
+                
+
+                if eff.from_ == 0 and card.isActive():
+                    assert card.canGetResources(eff.to)
+                else:
+                    assert not card.canGetResources(eff.to)
+
+            if isinstance(eff, TransformationFixed):
+                otherCard = grid2.getCard(GridPosition(0,0))
+                if otherCard:
+                    c1 = Counter(otherCard.resources)
+                    c2 = Counter(eff.from_)
+                    condition = True
+                    for res in c2.keys():
+                        if res not in c1.keys() or c1[res] < c2[res]:
+                            condition = False
+                            break
+
+                    game.activateCard(playerId=2,
+                    card = pos,
+                    inputs = [(res, GridPosition(0,0)) for res in eff.from_],
+                    outputs = [(res, pos) for res in eff.to],
+                    pollution = [pos] if eff.pollution == 1 else [],
+                    otherPlayerId = None,
+                    otherCard = None)
+                    
+                    
+                    if condition and card and card.isActive() and otherCard.isActive():
+                        assert card.canGetResources(eff.to)
+
+                    else:
+                        assert not card.canGetResources(eff.to)
+    
+    
+    assert len(grid2.grid) == 2  
+
+    assert game.turnFinished(2)
+    assert game.currentPlayerId == 1
+    assert game.turnNumber == 3
 
     # Check what turn we're on and what state
     print(f"Turn number: {game.turnNumber}, State: {game.state}, Current player: {game.currentPlayerId}")
 
-    # ===== VERIFY GRID COMPLETION =====
+    # ===== VERIFY GRID =====
     # Verify pollution mechanics without manually placing
     # Check that cards have proper pollution space attributes
     for pos, card_interface in grid1.grid.items():
@@ -272,16 +377,11 @@ def test_basic_game_flow_with_pollution() -> None:
             assert card.isActive()
 
     # ===== TEST SUMMARY =====
-    # We successfully completed a 9-turn game with:
+    # We successfully completed a 2 turns with activations and randomly shuffled decks:
     # - Card placement and grid constraints (3x3)
-    # - Both players filled their grids completely
     # - Pollution mechanics are present on cards
     # - Game state management worked correctly through all turns
-
-    # Verify final game state
-    assert game.turnNumber == 10
-    assert len(grid1.grid) == 9
-    assert len(grid2.grid) == 9
+    # - All card activations worked correctly
 
     # Verify observers received notifications
     assert len(observer1.notifications) > 0
@@ -292,4 +392,4 @@ def test_basic_game_flow_with_pollution() -> None:
         assert -2 <= pos.x <= 2
         assert -2 <= pos.y <= 2
 
-    print("✓ Test 3: Basic Game Flow with Pollution & Deactivation - PASSED")
+    print("✓ Test 4: Two Turns With Card Activations - PASSED")

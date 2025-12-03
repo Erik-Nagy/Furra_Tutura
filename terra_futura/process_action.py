@@ -20,7 +20,6 @@ class ProcessAction(ProcessActionInterface):
                 return False
             if not pollution_card.canPlacePollution(count):
                 return False
-
         #check inputs for each position
         inputs_grouped: dict[GridPosition, list[Resource]] = {}
         for resource, position in inputs:
@@ -32,7 +31,6 @@ class ProcessAction(ProcessActionInterface):
                 return False
             if not input_card.canGetResources(resources):
                 return False
-
         #check outputs for each position
         outputs_grouped: dict[GridPosition, list[Resource]] = {}
         outputs_resources: list[Resource] = []
@@ -53,21 +51,22 @@ class ProcessAction(ProcessActionInterface):
 
         if card.check(inputs_resources, outputs_resources, len(pollution)) or card.checkLower(inputs_resources, outputs_resources, len(pollution)):
             #perform action
+            for position, resources in inputs_grouped.items():
+                input_card = grid.getCard(position)
+                if input_card is None:
+                    return False
+                input_card.getResources(resources)
+            for position, resources in outputs_grouped.items():
+                output_card = grid.getCard(position)
+                if output_card is None:
+                    return False
+                output_card.putResources(resources)
+
             for position, count in counted_pollution.items():
                 pollution_card = grid.getCard(position)
                 if pollution_card is None:
                     return False
                 pollution_card.placePollution(count)
-            for position, resources in inputs_grouped.items():
-                output_card = grid.getCard(position)
-                if output_card is None:
-                    return False
-                output_card.getResources(resources)
-            for position, resources in outputs_grouped.items():
-                input_card = grid.getCard(position)
-                if input_card is None:
-                    return False
-                input_card.putResources(resources)
             return True
 
         return False

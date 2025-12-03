@@ -1,4 +1,3 @@
-# test/test_integration/test_game_transformations_and_scoring.py
 """
 Integration Test 2: Resource Transformation & Final Activation/Scoring
 
@@ -190,7 +189,7 @@ def test_resource_transformation_and_scoring() -> None:
     assert game.turnNumber == 1
     assert game.currentPlayerId == 1
 
-    # ===== TURNS 1-2: Initial Setup =====
+    # ===== TURNS 1: Initial Setup =====
     # Player 1: Place first card
     game.takeCard(
         playerId=1,
@@ -215,7 +214,7 @@ def test_resource_transformation_and_scoring() -> None:
     game.turnFinished(2)
     assert game.currentPlayerId == 1
 
-    # ===== TURNS 3-4: Continue building =====
+    # ===== TURNS 2: Continue building =====
     # Turn 3: Player 1
     game.takeCard(
         playerId=1,
@@ -243,7 +242,7 @@ def test_resource_transformation_and_scoring() -> None:
         GridPosition(1, 0)
     ]
 
-    for turn_idx in range(7):  # Turns 5-9 (3rd through 9th placements after starting + first 2)
+    for turn_idx in range(7):  # Turns 3-9 (3rd through 9th placements after starting + first 2)
         # Player 1
         game.takeCard(
             playerId=1,

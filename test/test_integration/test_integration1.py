@@ -1,3 +1,9 @@
+"""
+Integration Test 1: Full Game Simulation
+
+Tests game mechanics with simple decisions through a complete 9-turn game.
+"""
+
 from terra_futura.game import Game
 from terra_futura.player import Player
 from terra_futura.grid import Grid
@@ -143,4 +149,6 @@ def test_full_game_simulation() -> None:
     # Scoring methods should have been calculated for at least one player
     assert p1.scoring_methods[0].calculatedTotal is not None or p1.scoring_methods[1].calculatedTotal is not None
     assert p2.scoring_methods[0].calculatedTotal is not None or p2.scoring_methods[1].calculatedTotal is not None
+
+    print("✓ Test 1: Full Game Simulation - PASSED")
 
